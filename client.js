@@ -15,18 +15,22 @@ serverConnection.on('message', function(data) {
 
 serverConnection.on('end', function() {
 	console.log("Ending with server!");
-	serverConnection.setTimeout(2000, function() {
-		serverConnection.connect(6969, "127.0.0.1");
-	});
+	setTimeout(function() {
+		serverConnection.setTimeout(2000, function() {
+			serverConnection.connect(6969, "127.0.0.1");
+		});
+	}, 5000);
 
 });
 
 
 serverConnection.on('close', function() {
 	console.log("Closing with server!");
-	serverConnection.setTimeout(2000, function() {
-		serverConnection.connect(6969, "127.0.0.1");
-	});
+	setTimeout(function() {
+		serverConnection.setTimeout(2000, function() {
+			serverConnection.connect(6969, "127.0.0.1");
+		});
+	}, 5000);
 
 });
 
