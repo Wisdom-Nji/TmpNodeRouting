@@ -1,0 +1,8 @@
+Wed Mar 27 12:17:02 2019
+test_value 2019-03-27 Test65 AFB,scanty 12345 MTB Detected (high) RIF resistance NOT DETECTED 123456
+
+Powered by Afkanerd OpenOs
+Wed Mar 27 12:43:16 2019
+test_value 2019-03-27 Automated Afkanerd User AFB,scanty 122345 MTB TRACE 0000
+
+Powered by Afkanerd OpenOs
