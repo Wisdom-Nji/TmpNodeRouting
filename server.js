@@ -39,15 +39,23 @@ socketConnection.on('connection', function(client) {
 	console.log(`Number of collected clients| ${Object.keys(collection_of_clients).length}`);
 
 	client.on('close', function() {
-		delete collection_of_clients[this.id];
+		console.log(`Deleting client| ${client.id}`);
+		delete collection_of_clients[client.id];
+	});
+
+	client.on('disconnect', function() {
+		console.log(`Disconnecting client| ${client.id}`);
+		delete collection_of_clients[client.id];
 	});
 
 	client.on('end', function() {
-		delete collection_of_clients[this.id];
+		console.log(`Client ended| ${client.id}`);
+		delete collection_of_clients[client.id];
 	});
 
 	client.on('error', function() {
-		delete collection_of_clients[this.id];
+		console.log(`Error from client| ${client.id}`);
+		delete collection_of_clients[client.id];
 	});
 
 });
@@ -67,11 +75,16 @@ socketConnection.on('error', function() {
 
 app.get('/sms/:information', function(req, res) {
 	var information = req.params.information;
-
-	for(var i in collection_of_clients) {
-		var client = collection_of_clients[i];
-		client.sendMessage(information);
-	//	client.pipe(client);
+	//console.log(information);
+	JSON.parse(information);
+	if(typeof information != "undefined" && information != null) {	
+		//console.log(information.data);a=
+		console.log(information.constructor);
+		for(var i in collection_of_clients) {
+			var client = collection_of_clients[i];
+			client.sendMessage(information);
+		//	client.pipe(client);
+		}
 	}
 	res.end();
 });
@@ -81,8 +94,8 @@ socketConnection.listen(6969, function() {
 	console.log(`Started SMS Gateway on port 6969`);
 });
 
-app.listen(8081, function() {
-	console.log(`Started URL Router on port 8081`);
+app.listen(7455, function() {
+	console.log(`Started URL Router on port 7455`);
 });
 
 
