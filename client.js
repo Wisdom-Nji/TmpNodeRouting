@@ -38,12 +38,14 @@ serverConnection.on('message', function(data) {
 
 serverConnection.on('end', function() {
 	console.log("Ending with server!");
-	setTimeout(function() {
+	/*setTimeout(function() {
+		console.log("Ended, and trying to reconnect to server!");
+		serverConnection.end();
 		serverConnection = new JsonSocket(net.connect(6969, host, function() {
 			console.log(`Connected to online server`);
 
 		}));
-	}, 10000);
+	}, 10000);*/
 
 });
 
@@ -51,6 +53,8 @@ serverConnection.on('end', function() {
 serverConnection.on('close', function() {
 	console.log("Closing with server!");
 	setTimeout(function() {
+		console.log("Closed, and trying to reconnect to server!");
+		serverConnection.end();
 		serverConnection = new JsonSocket(net.connect(6969, host, function() {
 			console.log(`Connected to online server`);
 
@@ -62,17 +66,25 @@ serverConnection.on('close', function() {
 
 serverConnection.on('disconnect', function(){
 	setTimeout(function() {
-		serverConnection.setTimeout(2000, function() {
-			serverConnection.connect(6969, host);
-		});
+		console.log("Disconnected, and trying to reconnect to server!");
+		serverConnection.end();
+		serverConnection = new JsonSocket(net.connect(6969, host, function() {
+			console.log(`Connected to online server`);
+
+		}));
 	}, 10000);
+
 })
 
 serverConnection.on('error', function(error) {
 	setTimeout(function() {
-		serverConnection.setTimeout(2000, function() {
-			serverConnection.connect(6969, host);
-		});
+		console.log("Error, disconnected and trying to reconnect to server!");
+		serverConnection.end();
+		serverConnection = new JsonSocket(net.connect(6969, host, function() {
+			console.log(`Connected to online server`);
+
+		}));
 	}, 10000);
+
 });
 
