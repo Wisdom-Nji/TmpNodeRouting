@@ -77,14 +77,15 @@ serverConnection.on('disconnect', function(){
 })
 
 serverConnection.on('error', function(error) {
-	setTimeout(function() {
+	console.log("Error, Going to reconnect if closed event is made");
+	/*setTimeout(function() {
 		console.log("Error, disconnected and trying to reconnect to server!");
 		serverConnection.end();
 		serverConnection = new JsonSocket(net.connect(6969, host, function() {
 			console.log(`Connected to online server`);
 
 		}));
-	}, 10000);
+	}, 10000);*/
 
 });
 
