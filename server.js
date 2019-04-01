@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 
 const app = express();
 var collection_of_clients = {};
+var messageQueing = {};
 app.use(bodyParser.json());
 
 // Add headers
@@ -32,31 +33,47 @@ app.use(function (req, res, next) {
 var socketConnection = new net.Server;
 
 socketConnection.on('connection', function(client) {
+	client.setKeepAlive(true, 20000);
 	client = new JsonSocket(client);
 	client.id = Math.floor(Math.random() * 1000);
 
 	collection_of_clients[client.id] = client;
+	console.log(`New client with ID| ${client.id}`);
 	console.log(`Number of collected clients| ${Object.keys(collection_of_clients).length}`);
 
 	client.on('close', function() {
 		console.log(`Deleting client| ${client.id}`);
 		delete collection_of_clients[client.id];
+		//client.destroy();
 	});
 
+	client.on('message', function(data) {
+		console.log(`Client(${client.id}) message| ${data}`);
+		//data = JSON.parse(data);
+		data = JSON.parse(data);
+		if(typeof data != "undefined" && typeof data.type != "undefined" && data.type == "confirmation") {
+			console.log(`Deleting ${data.messageId}`);
+			delete messageQueing[data.messageId];
+		}
+	});
+	/*
 	client.on('disconnect', function() {
 		console.log(`Disconnecting client| ${client.id}`);
 		delete collection_of_clients[client.id];
-	});
+		client.destroy();
+	}); */
 
 	client.on('end', function() {
 		console.log(`Client ended| ${client.id}`);
 		delete collection_of_clients[client.id];
 	});
 
+	/*
+
 	client.on('error', function() {
 		console.log(`Error from client| ${client.id}`);
 		delete collection_of_clients[client.id];
-	});
+	});*/
 
 });
 
@@ -73,16 +90,28 @@ socketConnection.on('error', function() {
 });
 
 
-app.get('/sms/:information', function(req, res) {
-	var information = req.params.information;
-	//console.log(information);
-	JSON.parse(information);
+app.post('/sms/', function(req, res) {
+	//var information = decodeURIComponent(req.body.information);
+	var information = req.body;
+	console.log(information);
+	//information = JSON.parse(information);
 	if(typeof information != "undefined" && information != null) {	
+		var id = Math.floor(Math.random() * 10000).toString();
+		information.push({messageId: id} )
+		information = JSON.stringify(information);
+		messageQueing[id] = information;
+
 		//console.log(information.data);a=
 		console.log(information.constructor);
 		for(var i in collection_of_clients) {
 			var client = collection_of_clients[i];
-			client.sendMessage(information);
+
+			console.log(`Sending to client with id| ${client.id}`);
+			console.log(`Queued ${Object.keys(messageQueing).length} Message(s)`);
+			//client.sendMessage(information);
+			for(var j in messageQueing) {
+				client.sendMessage(messageQueing[j]);
+			}
 		//	client.pipe(client);
 		}
 	}
