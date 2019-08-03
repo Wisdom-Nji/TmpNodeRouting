@@ -54,6 +54,7 @@ function send_sms(data) {
 				'--group',group,
 				'--class',_class
 			]);
+			console.log("Sent...");
 			//console.log("Terminal output\n" + system_command.output);
 			//console.log("Terminal return code: " + system_command.status);
 		}
@@ -92,10 +93,9 @@ function establishServerConnection() {
 			type : "confirmation",
 			messageId : data[data.length -1].messageId
 		}));
-		delete data[data.length -1];
 		if(typeof data[data.length -1] != "undefined" && Object.keys(data[data.length -1]) == "messageId") {
-
 			console.log(`Message ID: ${data[data.length -1].messageId}`);
+			delete data[data.length -1];
 			send_sms(data);
 		}
 	});
