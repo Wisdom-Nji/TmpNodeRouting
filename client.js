@@ -2,7 +2,7 @@ const net = require('net'),JsonSocket = require('json-socket');
 const {spawnSync} = require('child_process');
 const fs = require('fs');
 
-var host = "localhost";
+var host = "tbappbamenda.com";
 var serverConnection = "";
 
 //Take Terminal args here
@@ -124,7 +124,7 @@ function establishServerConnection() {
 
 
 	serverConnection.on('message', async function(data) {
-		console.log(data);
+		//console.log(data);
 		data = JSON.parse(data);
 		console.log(`[EVENT]: Message - ${data.length}`);
 		serverConnection.sendMessage(JSON.stringify({
@@ -136,9 +136,9 @@ function establishServerConnection() {
 			delete data[data.length -1];
 			if(fs.existsSync( LOCK_FILE )) {
 				master_buffer.push( data[i] );
-				continue;
+			//	continue;
 			}
-			for(i in data) await writeToLog(data[i]);
+			else for(i in data) await writeToLog(data[i]);
 		}
 	});
 
@@ -172,4 +172,4 @@ function establishServerConnection() {
 }
 
 establishServerConnection();
-establishServerConnectionUpdate();
+//establishServerConnectionUpdate();
