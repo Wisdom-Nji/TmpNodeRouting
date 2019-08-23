@@ -32,9 +32,19 @@ app.use(function (req, res, next) {
 
 
 var socketConnection = new net.Server;
+var socketConnection2 = new net.Server;
+
+socketConnection2.on('connection', function(client) {
+	client.setKeepAlive(true, 10000);
+	client = new JsonSocket(client);
+
+	console.log("[UPDATE CLIENT: CONNECTED!");
+});
 
 socketConnection.on('connection', function(client) {
 	client.setKeepAlive(true, 20000);
+	console.log(`[ADDRESS]: ${client.remoteAddress}`)
+	console.log(`[ADDRESS]: ${client.localAddress}`)
 	client = new JsonSocket(client);
 	monoClient = client;
 
@@ -109,6 +119,9 @@ app.post('/sms/', function(req, res) {
 });
 
 
+socketConnection2.listen(9999, function() {
+	console.log(`Update Port Opened at 9999`);
+});
 socketConnection.listen(6969, function() {
 	console.log(`Started SMS Gateway on port 6969`);
 });

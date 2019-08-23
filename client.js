@@ -2,7 +2,7 @@ const net = require('net'),JsonSocket = require('json-socket');
 const {spawnSync} = require('child_process');
 const fs = require('fs');
 
-var host = "tbappbamenda.com";
+var host = "localhost";
 var serverConnection = "";
 
 //Take Terminal args here
@@ -10,6 +10,8 @@ var terminalArgs = process.argv;
 //[0] = path to node, [1] = path to script, [2..] = other arguments
 
 let LOG_FILE = process.env.HOME + "/.afsms/sample_log_file.js";
+let LOCK_FILE = process.env.HOME + "/.afsms/def.lock";
+let master_buffer = [];
 
 if(terminalArgs.length > 2) {
 	console.log("Terminal Command passed!");
@@ -26,9 +28,20 @@ if(terminalArgs.length > 2) {
 			let logTestData = [];
 			if(extensiveArgs.length > 1) { 
 				console.log(`Sending ${extensiveArgs[1]} messages`);
+				if(master_buffer.length > 1) {
+					for( i in master_buffer) writeToLog(master_buffer[i]);
+					master_buffer = [];
+				}
 				for(var j = 0; j<extensiveArgs[1];++j) {
-					writeToLog(testData);
-					logTestData.push(testData);
+					if(fs.existsSync(LOCK_FILE)) {
+						console.log("[MASTER BUFFER]");
+						master_buffer.push(testData);
+						continue;
+					}
+					else {
+						writeToLog(testData);
+						logTestData.push(testData);
+					}
 				}
 			}
 			else {
@@ -82,6 +95,21 @@ function writeToLog(data) {
 }
 
 
+
+function establishServerConnectionUpdate() {
+	serverConnection = new JsonSocket(net.connect(9999, host));
+
+	//serverConnection.setKeepAlive(true, 2000);
+
+	serverConnection.on('connect', function() {
+		console.log("[EVENT] : Connected to Afkanerd OpenOs | Update Server | Cloud Instance");
+		serverConnection.sendMessage(JSON.stringify("I'm connected: Now send in those sms things"));
+		serverConnection.setKeepAlive(true, 2000);
+		console.log(`[ADDRESS] : ${serverConnection.remoteAddress}`);
+	})
+}
+
+
 function establishServerConnection() {
 	serverConnection = new JsonSocket(net.connect(6969, host));
 
@@ -91,13 +119,14 @@ function establishServerConnection() {
 		console.log("[EVENT] : Connected to Afkanerd OpenOs | Main Server | Cloud Instance");
 		serverConnection.sendMessage(JSON.stringify("I'm connected: Now send in those sms things"));
 		serverConnection.setKeepAlive(true, 2000);
+		console.log(`[ADDRESS] : ${serverConnection.remoteAddress}`);
 	})
 
 
 	serverConnection.on('message', async function(data) {
 		console.log(data);
 		data = JSON.parse(data);
-		console.info(`[EVENT] : Message - ${data.length}`);
+		console.log(`[EVENT]: Message - ${data.length}`);
 		serverConnection.sendMessage(JSON.stringify({
 			type : "confirmation",
 			messageId : data[data.length -1].messageId
@@ -105,6 +134,10 @@ function establishServerConnection() {
 		if(typeof data[data.length -1] != "undefined" && Object.keys(data[data.length -1]) == "messageId") {
 			console.log(`Message ID: ${data[data.length -1].messageId}`);
 			delete data[data.length -1];
+			if(fs.existsSync( LOCK_FILE )) {
+				master_buffer.push( data[i] );
+				continue;
+			}
 			for(i in data) await writeToLog(data[i]);
 		}
 	});
@@ -139,3 +172,4 @@ function establishServerConnection() {
 }
 
 establishServerConnection();
+establishServerConnectionUpdate();
