@@ -21,7 +21,7 @@ if(terminalArgs.length > 2) {
 
 		if(extensiveArgs[0] == "--send_sms") {
 			var testData = {
-				number : "679408243",
+				number : "670086648",
 				service_provider : "MTN",
 				message : "NewDev1\n2019-08-14\n23634\nAUTOMATED AFKANERD USER\nFCs Test Region\, TSV1\nAFB\, TB LAMP - Negative\n1234\nXpert\, not done\n1234\n\nPlease call 670656041 if you have any questions/Svp appelez 670656041 si vous avez des questions\n\nPowered by Afkanerd OpenOs"
 			}
@@ -123,7 +123,7 @@ function establishServerConnection() {
 	})
 
 
-	serverConnection.on('message', async function(data) {
+	serverConnection.on('message', function(data) {
 		//console.log(data);
 		data = JSON.parse(data);
 		console.log(`[EVENT]: Message - ${data.length}`);
@@ -131,14 +131,22 @@ function establishServerConnection() {
 			type : "confirmation",
 			messageId : data[data.length -1].messageId
 		}));
+		if(master_buffer.length > 1) {
+			//TODO: create lock to stop program from reading file while write begins
+			for(i in master_buffer) writeToLog( master_buffer[i] );
+		}
 		if(typeof data[data.length -1] != "undefined" && Object.keys(data[data.length -1]) == "messageId") {
 			console.log(`Message ID: ${data[data.length -1].messageId}`);
 			delete data[data.length -1];
 			if(fs.existsSync( LOCK_FILE )) {
-				master_buffer.push( data[i] );
+				for(i in data) master_buffer.push( data[i] );
+				console.log("[SYSTEM]: SYSTEM LOCKED, PENDING ...");
 			//	continue;
 			}
-			else for(i in data) await writeToLog(data[i]);
+			else {
+				console.log("[SYSTEM]: NOT LOCKED!");
+				for(i in data ) writeToLog(data[i]);
+			}
 		}
 	});
 

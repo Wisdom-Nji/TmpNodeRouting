@@ -55,23 +55,11 @@ socketConnection.on('connection', function(client) {
 	client.on('message', function(data) {
 		console.log(`Client(${client.id}) message| ${data}`);
 	});
-	/*
-	client.on('disconnect', function() {
-		console.log(`Disconnecting client| ${client.id}`);
-		delete collection_of_clients[client.id];
-		client.destroy();
-	}); */
 
 	client.on('end', function() {
 		console.log(`Client ended| ${client.id}`);
 	});
 
-	/*
-
-	client.on('error', function() {
-		console.log(`Error from client| ${client.id}`);
-		delete collection_of_clients[client.id];
-	});*/
 
 });
 
