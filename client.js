@@ -21,9 +21,10 @@ if(terminalArgs.length > 2) {
 
 		if(extensiveArgs[0] == "--send_sms") {
 			var testData = {
-				number : "670086648",
+				number : "652156811",
 				service_provider : "MTN",
 				message : "NewDev1\n2019-08-14\n23634\nAUTOMATED AFKANERD USER\nFCs Test Region\, TSV1\nAFB\, TB LAMP - Negative\n1234\nXpert\, not done\n1234\n\nPlease call 670656041 if you have any questions/Svp appelez 670656041 si vous avez des questions\n\nPowered by Afkanerd OpenOs"
+				//message : `${new Date().toDateString()} ${new Date().toTimeString()}`
 			}
 			let logTestData = [];
 			if(extensiveArgs.length > 1) { 
@@ -39,8 +40,12 @@ if(terminalArgs.length > 2) {
 						continue;
 					}
 					else {
+						let message = `${j} ${testData.message}`;
+						let defTestMessage = testData.message;
+						testData.message = message;
 						writeToLog(testData);
 						logTestData.push(testData);
+						testData.message = defTestMessage;
 					}
 				}
 			}
